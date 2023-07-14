@@ -82,16 +82,19 @@ for (folder in list.dirs('data/genomescope/')){
   if (grepl('HA',folder)){
   key <- str_split(folder,'_',simplify=TRUE)[,1]
   key <- str_split(key,'/',simplify=TRUE)[,4]
+  if (sum(grepl(name_translation[key],rownames(global_stats)))==1){
   temp <- read.csv(paste0(folder,"/summary.txt_fixed.csv"))
   global_stats[name_translation[key],'genome_haploid_length'] <- 
     mean(temp[2,'min'],temp[2,'max'])
   global_stats[name_translation[key],'genome_unique_length'] <- 
     mean(temp[4,'min'],temp[4,'max'])
   }
+  }
 }
 #print(temp)
 print(global_stats)
 ```
+
 #### Genomescope predicted haploid genome length vs N50
 ```{r}
 global_stats$Strain <- rownames(global_stats)
@@ -127,6 +130,9 @@ ggplot(global_stats,aes(x=N50,y=genome_unique_length,label=Strain))+
   theme(plot.caption = element_text(hjust = 0,size=12))
 ggsave("plots/unique_genome_length_vs_N50.png")
 ```
+
+
+
 #### Contig length distribution for each strain
 ```{r}
 stats_joined <- ldply(stats,rbind)
@@ -164,6 +170,40 @@ ggsave("plots/coverage_vs_GC.png")
 ```
 
 
+#### Genomescope predicted unique genome length vs assembled length
+```{r}
+
+global_stats$total_assembled_length <- global_stats[,"Total assembled length"]
+ggplot(global_stats,aes(x=total_assembled_length,y=genome_unique_length,label=Strain))+
+  geom_point()+
+  theme_bw()+
+  geom_smooth(method=lm,colour="black")+
+  ylab("Unique genome length")+
+  xlab("Total assembled length")+
+  labs(caption=str_wrap("Figure 5.  Relationship between predicted unique genome
+                        length and total assembled length for 13 Emiliania huxleyi 
+                        genomes.",75))+
+    geom_text_repel(size=3)+
+  theme(plot.caption = element_text(hjust = 0,size=12))
+ggsave("plots/unique_genome_length_vs_total_assembled_length.png")
+```
+
+```{r}
+
+
+ggplot(global_stats,aes(x=total_assembled_length,y=genome_haploid_length,label=Strain))+
+  geom_point()+
+  theme_bw()+
+  geom_smooth(method=lm,colour="black")+
+  ylab("Haploid genome length")+
+  xlab("Total assembled length")+
+  labs(caption=str_wrap("Figure 6.  Relationship between predicted haploid genome
+                        length and total assembled length for 13 Emiliania huxleyi 
+                        genomes.",75))+
+    geom_text_repel(size=3)+
+  theme(plot.caption = element_text(hjust = 0,size=12))
+ggsave("plots/haploid_genome_length_vs_total_assembled_length.png")
+```
 
 ```{r include=FALSE}
 
