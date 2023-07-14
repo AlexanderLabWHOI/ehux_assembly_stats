@@ -161,8 +161,8 @@ stats_joined["Normalized_fold_coverage"] <- stats_joined["Avg_fold"]/mean(stats_
 ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
   geom_point(size=0.5)+ylim(0,300)+facet_wrap(vars(.id))+
              theme_bw()+
-  ylab("Contig GC%")+
-  xlab("Average Fold Coverage")+
+  xlab("Contig GC%")+
+  ylab("Average Fold Coverage")+
   labs(caption=str_wrap("Figure 4. Contig Fold coverage vs GC percentage for 13 
                         Emiliana huxleyi genomes.",75))+
   theme(plot.caption = element_text(hjust = 0,size=12))
