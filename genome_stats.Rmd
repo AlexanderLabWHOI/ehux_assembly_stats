@@ -103,11 +103,11 @@ ggplot(global_stats,aes(x=N50,y=genome_haploid_length,label=Strain))+
   ylab("Haploid genome length")+
   xlab("Contig N50")+
   labs(caption=str_wrap("Figure 1.  Relationship between predicted haploid genome 
-                        length and contig N50 for 13 Emiliania huxleyi assembled 
-                        genomes."),50)+
+                        length and contig N50 for 13 Emiliania huxleyi  
+                        genomes.",75))+
     geom_text_repel(size=3)+
   theme(plot.caption = element_text(hjust = 0,size=12))
-
+ggsave("plots/haploid_genome_length_vs_N50.png")
 ```
 #### Genomescope predicted unique genome length vs N50
 ```{r}
@@ -121,11 +121,11 @@ ggplot(global_stats,aes(x=N50,y=genome_unique_length,label=Strain))+
   ylab("Unique genome length")+
   xlab("Contig N50")+
   labs(caption=str_wrap("Figure 2.  Relationship between predicted unique genome
-                        length and contig N50 for 13 Emiliania huxleyi assembled
-                        genomes."),50)+
+                        length and contig N50 for 13 Emiliania huxleyi 
+                        genomes.",75))+
     geom_text_repel(size=3)+
   theme(plot.caption = element_text(hjust = 0,size=12))
-
+ggsave("plots/unique_genome_length_vs_N50.png")
 ```
 #### Contig length distribution for each strain
 ```{r}
@@ -135,10 +135,10 @@ ggplot(stats_joined,aes(x=Length.x))+geom_histogram()+scale_x_log10()+
   xlab("Contig size")+
   ylab("Count")+facet_wrap(vars(.id))+
   labs(caption=str_wrap("Figure 3. Contig length distribution for 13 Emiliania 
-                        huxleyi assembled genomes."),50)+
+                        huxleyi genomes.",75))+
   theme(plot.caption = element_text(hjust = 0,size=12))
 
-
+ggsave("plots/contig_length_distributions.png")
 ```
 
 
@@ -158,9 +158,9 @@ ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
   ylab("Contig GC%")+
   xlab("Average Fold Coverage")+
   labs(caption=str_wrap("Figure 4. Contig Fold coverage vs GC percentage for 13 
-                        Emiliana huxleyi assembled genomes."),50)+
+                        Emiliana huxleyi genomes.",75))+
   theme(plot.caption = element_text(hjust = 0,size=12))
-
+ggsave("plots/coverage_vs_GC.png")
 ```
 
 
@@ -172,7 +172,7 @@ temp <- stats_joined
 temp <- mutate(temp, bin=cut_width(GC, width=0.01, boundary=0) )
 
 ggplot(temp, aes(x=bin, y=Avg_fold)) +geom_boxplot()+
-  labs(caption=str_wrap(paste0("Fold coverage vs GC percentage for strain ",strain)),50)+
+  labs(caption=str_wrap(paste0("Fold coverage vs GC percentage for strain ",strain),75))+
   facet_wrap(vars(.id))+ylim(0,200)+
   theme(plot.caption = element_text(hjust = 0,size=12),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
