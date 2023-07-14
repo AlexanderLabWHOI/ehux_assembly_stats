@@ -1,0 +1,7 @@
+property,min,max
+Heterozygosity,1.59488,1.64322
+Genome_Haploid_Length,107508536,108043970
+Genome_Repeat_Length,41332549,41538402
+Genome_Unique_Length,66175986,66505568
+Model_Fit,85.8613,89.8238
+Read_Error_Rate,0.706452,0.706452

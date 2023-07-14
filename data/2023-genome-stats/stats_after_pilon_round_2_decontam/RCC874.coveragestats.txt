@@ -1,0 +1,36 @@
+A	C	G	T	N	IUPAC	Other	GC	GC_stdev
+0.1694	0.3295	0.3319	0.1692	0.0000	0.0000	0.0000	0.6614	0.0373
+
+Main genome scaffold total:         	396
+Main genome contig total:           	396
+Main genome scaffold sequence total:	152.969 MB
+Main genome contig sequence total:  	152.969 MB  	0.000% gap
+Main genome scaffold N/L50:         	16/3.016 MB
+Main genome contig N/L50:           	16/3.016 MB
+Main genome scaffold N/L90:         	48/1.158 MB
+Main genome contig N/L90:           	48/1.158 MB
+Max scaffold length:                	7.854 MB
+Max contig length:                  	7.854 MB
+Number of scaffolds > 50 KB:        	73
+% main genome in scaffolds > 50 KB: 	98.51%
+
+
+Minimum 	Number        	Number        	Total         	Total         	Scaffold
+Scaffold	of            	of            	Scaffold      	Contig        	Contig  
+Length  	Scaffolds     	Contigs       	Length        	Length        	Coverage
+--------	--------------	--------------	--------------	--------------	--------
+    All 	           396	           396	   152,968,590	   152,968,590	 100.00%
+    500 	           396	           396	   152,968,590	   152,968,590	 100.00%
+   1 KB 	           389	           389	   152,963,608	   152,963,608	 100.00%
+ 2.5 KB 	           319	           319	   152,832,732	   152,832,732	 100.00%
+   5 KB 	           227	           227	   152,495,663	   152,495,663	 100.00%
+  10 KB 	           135	           135	   151,844,328	   151,844,328	 100.00%
+  25 KB 	            87	            87	   151,149,887	   151,149,887	 100.00%
+  50 KB 	            73	            73	   150,694,978	   150,694,978	 100.00%
+ 100 KB 	            68	            68	   150,329,641	   150,329,641	 100.00%
+ 250 KB 	            64	            64	   149,499,829	   149,499,829	 100.00%
+ 500 KB 	            60	            60	   148,293,314	   148,293,314	 100.00%
+   1 MB 	            49	            49	   139,549,968	   139,549,968	 100.00%
+ 2.5 MB 	            23	            23	    97,988,759	    97,988,759	 100.00%
+   5 MB 	             9	             9	    54,386,253	    54,386,253	 100.00%
+

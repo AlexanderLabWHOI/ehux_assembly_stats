@@ -1,0 +1,7 @@
+property,min,max
+Heterozygosity,-100,-100
+Genome_Haploid_Length,-1,-1
+Genome_Repeat_Length,-1,-1
+Genome_Unique_Length,-1,-1
+Model_Fit,0,0
+Read_Error_Rate,-100,-100

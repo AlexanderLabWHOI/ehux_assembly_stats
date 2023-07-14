@@ -1,0 +1,35 @@
+A	C	G	T	N	IUPAC	Other	GC	GC_stdev
+0.1736	0.3253	0.3273	0.1738	0.0000	0.0000	0.0000	0.6526	0.0298
+
+Main genome scaffold total:         	9734
+Main genome contig total:           	9734
+Main genome scaffold sequence total:	211.559 MB
+Main genome contig sequence total:  	211.559 MB  	0.000% gap
+Main genome scaffold N/L50:         	586/70.125 KB
+Main genome contig N/L50:           	586/70.125 KB
+Main genome scaffold N/L90:         	4847/7.931 KB
+Main genome contig N/L90:           	4847/7.931 KB
+Max scaffold length:                	1.246 MB
+Max contig length:                  	1.246 MB
+Number of scaffolds > 50 KB:        	765
+% main genome in scaffolds > 50 KB: 	55.08%
+
+
+Minimum 	Number        	Number        	Total         	Total         	Scaffold
+Scaffold	of            	of            	Scaffold      	Contig        	Contig  
+Length  	Scaffolds     	Contigs       	Length        	Length        	Coverage
+--------	--------------	--------------	--------------	--------------	--------
+    All 	         9,734	         9,734	   211,559,349	   211,559,349	 100.00%
+    250 	         9,734	         9,734	   211,559,349	   211,559,349	 100.00%
+    500 	         9,733	         9,733	   211,558,853	   211,558,853	 100.00%
+   1 KB 	         9,664	         9,664	   211,504,816	   211,504,816	 100.00%
+ 2.5 KB 	         8,878	         8,878	   210,020,847	   210,020,847	 100.00%
+   5 KB 	         6,611	         6,611	   201,615,950	   201,615,950	 100.00%
+  10 KB 	         4,022	         4,022	   183,040,398	   183,040,398	 100.00%
+  25 KB 	         1,595	         1,595	   145,117,986	   145,117,986	 100.00%
+  50 KB 	           765	           765	   116,525,800	   116,525,800	 100.00%
+ 100 KB 	           409	           409	    90,989,372	    90,989,372	 100.00%
+ 250 KB 	           116	           116	    44,821,236	    44,821,236	 100.00%
+ 500 KB 	            16	            16	    11,342,739	    11,342,739	 100.00%
+   1 MB 	             2	             2	     2,465,484	     2,465,484	 100.00%
+

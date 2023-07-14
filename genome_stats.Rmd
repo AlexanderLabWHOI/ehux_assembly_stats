@@ -1,0 +1,186 @@
+---
+title: "all_strain_genome_stats"
+output: pdf_document
+date: "2023-07-12"
+---
+## Assembly stats for 13 Emiliania huxleyi genomes
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(ggrepel)
+library(plyr)
+```
+
+
+#### Read in assembly stats data
+
+```{r read_in}
+genstats <- list()
+gc <- list()
+stats <- list()
+strains <- as.character(read.csv('data/strains.csv',header=FALSE))
+for (strain in strains){
+  genstats[[strain]] <- read.table(paste0("data/2023-genome-stats/stats_after_pilon_round_2_decontam/"
+                                          ,strain,".genstats.txt"),sep="\t",header=F)
+  colnames(genstats[[strain]]) <- c(	'Contig_name','Avg_fold',	'Length',	'Ref_GC',	
+                                     'Covered_percent',	'Covered_bases','Plus_reads',
+                                     'Minus_reads',	'Read_GC',	'Median_fold', 'Std_Dev')
+
+    gc[[strain]] <- read.table(paste0("data/2023-genome-stats/stats_after_pilon_round_2_decontam/"
+                                      ,strain,".gcscaffold.txt"),sep="\t",header=F)
+  colnames(gc[[strain]]) <- c('Contig_name',	'Length',	'A',	'C',	'G',	'T',	'N',	
+                              'IUPAC','Other',	'GC')
+  stats[[strain]] <- inner_join(genstats[[strain]],gc[[strain]],by="Contig_name")
+}
+```
+
+#### Calculate globals assembly stats including N50 and total assembled length
+```{r}
+n50s <- c()
+lengths <- c()
+contig_counts <- c()
+mins <- c()
+maxs <- c()
+for (strain in strains){ 
+contig_lengths <- stats[[strain]]$Length.x
+contig_counts <- c(contig_counts,length(contig_lengths))
+total_assembled_length=sum(contig_lengths)
+contig_lengths <- sort(contig_lengths,decreasing=TRUE)
+
+sum <- 0
+for (length in contig_lengths){
+  sum <- sum+length
+  if (sum>=total_assembled_length/2){
+    n50s <- c(n50s,as.numeric(length))
+    lengths <- c(lengths,total_assembled_length)
+    maxs <- c(maxs,contig_lengths[1])
+    mins <- c(mins,contig_lengths[length(contig_lengths)])
+    break
+  }
+}
+
+}
+global_stats <- data.frame(n50s,lengths,contig_counts,mins,maxs)
+rownames(global_stats) <- strains
+colnames(global_stats) <- c('N50','Total assembled length','Contig count',
+                            'Min contig length','Max contig length')
+```
+#### Add in estimated genome size stats, calculated using Genomescope
+```{r}
+name_translation <- read.table('data/genomescope/illumina-run-conversions.txt',sep='')
+temp <- name_translation$V2
+names(temp) <- name_translation$V1
+name_translation <- temp
+```
+```{r}
+global_stats$genome_haploid_length <- seq(1,nrow(global_stats))
+global_stats$genome_unique_length <- seq(1,nrow(global_stats))
+for (folder in list.dirs('data/genomescope/')){
+  if (grepl('HA',folder)){
+  key <- str_split(folder,'_',simplify=TRUE)[,1]
+  key <- str_split(key,'/',simplify=TRUE)[,4]
+  temp <- read.csv(paste0(folder,"/summary.txt_fixed.csv"))
+  global_stats[name_translation[key],'genome_haploid_length'] <- 
+    mean(temp[2,'min'],temp[2,'max'])
+  global_stats[name_translation[key],'genome_unique_length'] <- 
+    mean(temp[4,'min'],temp[4,'max'])
+  }
+}
+#print(temp)
+print(global_stats)
+```
+#### Genomescope predicted haploid genome length vs N50
+```{r}
+global_stats$Strain <- rownames(global_stats)
+ggplot(global_stats,aes(x=N50,y=genome_haploid_length,label=Strain))+
+  geom_point()+
+  theme_bw()+
+  scale_x_log10()+
+  geom_smooth(method=lm,colour="black")+
+  ylab("Haploid genome length")+
+  xlab("Contig N50")+
+  labs(caption=str_wrap("Figure 1.  Relationship between predicted haploid genome 
+                        length and contig N50 for 13 Emiliania huxleyi assembled 
+                        genomes."),50)+
+    geom_text_repel(size=3)+
+  theme(plot.caption = element_text(hjust = 0,size=12))
+
+```
+#### Genomescope predicted unique genome length vs N50
+```{r}
+
+global_stats$Strain <- rownames(global_stats)
+ggplot(global_stats,aes(x=N50,y=genome_unique_length,label=Strain))+
+  geom_point()+
+  theme_bw()+
+  scale_x_log10()+
+  geom_smooth(method=lm,colour="black")+
+  ylab("Unique genome length")+
+  xlab("Contig N50")+
+  labs(caption=str_wrap("Figure 2.  Relationship between predicted unique genome
+                        length and contig N50 for 13 Emiliania huxleyi assembled
+                        genomes."),50)+
+    geom_text_repel(size=3)+
+  theme(plot.caption = element_text(hjust = 0,size=12))
+
+```
+#### Contig length distribution for each strain
+```{r}
+stats_joined <- ldply(stats,rbind)
+ggplot(stats_joined,aes(x=Length.x))+geom_histogram()+scale_x_log10()+
+           theme_bw()+
+  xlab("Contig size")+
+  ylab("Count")+facet_wrap(vars(.id))+
+  labs(caption=str_wrap("Figure 3. Contig length distribution for 13 Emiliania 
+                        huxleyi assembled genomes."),50)+
+  theme(plot.caption = element_text(hjust = 0,size=12))
+
+
+```
+
+
+
+```{r,include=FALSE}
+  
+stats_joined["Normalized_fold_coverage"] <- stats_joined["Avg_fold"]/mean(stats_joined$Avg_fold)
+
+```
+
+#### Scatterplots of fold coverage vs GC percentage (each point represents a contig)
+```{r }
+
+ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
+  geom_point(size=0.5)+ylim(0,300)+facet_wrap(vars(.id))+
+             theme_bw()+
+  ylab("Contig GC%")+
+  xlab("Average Fold Coverage")+
+  labs(caption=str_wrap("Figure 4. Contig Fold coverage vs GC percentage for 13 
+                        Emiliana huxleyi assembled genomes."),50)+
+  theme(plot.caption = element_text(hjust = 0,size=12))
+
+```
+
+
+
+```{r include=FALSE}
+
+temp <- stats_joined
+#temp <- filter(temp,Avg_fold<50)
+temp <- mutate(temp, bin=cut_width(GC, width=0.01, boundary=0) )
+
+ggplot(temp, aes(x=bin, y=Avg_fold)) +geom_boxplot()+
+  labs(caption=str_wrap(paste0("Fold coverage vs GC percentage for strain ",strain)),50)+
+  facet_wrap(vars(.id))+ylim(0,200)+
+  theme(plot.caption = element_text(hjust = 0,size=12),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
+
+```
+
+
+
+
+
+

@@ -1,0 +1,35 @@
+A	C	G	T	N	IUPAC	Other	GC	GC_stdev
+0.1705	0.3286	0.3302	0.1707	0.0000	0.0000	0.0000	0.6588	0.0267
+
+Main genome scaffold total:         	7168
+Main genome contig total:           	7168
+Main genome scaffold sequence total:	241.936 MB
+Main genome contig sequence total:  	241.936 MB  	0.000% gap
+Main genome scaffold N/L50:         	573/104.319 KB
+Main genome contig N/L50:           	573/104.319 KB
+Main genome scaffold N/L90:         	3228/12.693 KB
+Main genome contig N/L90:           	3228/12.693 KB
+Max scaffold length:                	4.348 MB
+Max contig length:                  	4.348 MB
+Number of scaffolds > 50 KB:        	1202
+% main genome in scaffolds > 50 KB: 	69.19%
+
+
+Minimum 	Number        	Number        	Total         	Total         	Scaffold
+Scaffold	of            	of            	Scaffold      	Contig        	Contig  
+Length  	Scaffolds     	Contigs       	Length        	Length        	Coverage
+--------	--------------	--------------	--------------	--------------	--------
+    All 	         7,168	         7,168	   241,936,265	   241,936,265	 100.00%
+    500 	         7,168	         7,168	   241,936,265	   241,936,265	 100.00%
+   1 KB 	         7,155	         7,155	   241,926,568	   241,926,568	 100.00%
+ 2.5 KB 	         6,754	         6,754	   241,149,319	   241,149,319	 100.00%
+   5 KB 	         5,527	         5,527	   236,536,623	   236,536,623	 100.00%
+  10 KB 	         3,743	         3,743	   223,555,444	   223,555,444	 100.00%
+  25 KB 	         2,016	         2,016	   196,211,685	   196,211,685	 100.00%
+  50 KB 	         1,202	         1,202	   167,405,086	   167,405,086	 100.00%
+ 100 KB 	           620	           620	   125,768,792	   125,768,792	 100.00%
+ 250 KB 	            97	            97	    49,180,593	    49,180,593	 100.00%
+ 500 KB 	            17	            17	    23,966,668	    23,966,668	 100.00%
+   1 MB 	            11	            11	    19,446,348	    19,446,348	 100.00%
+ 2.5 MB 	             2	             2	     6,898,654	     6,898,654	 100.00%
+
