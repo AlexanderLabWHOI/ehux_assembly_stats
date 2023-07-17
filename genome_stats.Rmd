@@ -23,17 +23,23 @@ gc <- list()
 stats <- list()
 strains <- as.character(read.csv('data/strains.csv',header=FALSE))
 for (strain in strains){
-  genstats[[strain]] <- read.table(paste0("data/2023-genome-stats/stats_after_pilon_round_2_decontam/"
+  genstats[[strain]] <- read.table(paste0("data/stats_after_pilon_round_2_decontam_rmdup/"
                                           ,strain,".genstats.txt"),sep="\t",header=F)
+
   colnames(genstats[[strain]]) <- c(	'Contig_name','Avg_fold',	'Length',	'Ref_GC',	
                                      'Covered_percent',	'Covered_bases','Plus_reads',
                                      'Minus_reads',	'Read_GC',	'Median_fold', 'Std_Dev')
 
-    gc[[strain]] <- read.table(paste0("data/2023-genome-stats/stats_after_pilon_round_2_decontam/"
+    gc[[strain]] <- read.table(paste0("data/stats_after_pilon_round_2_decontam_rmdup/"
                                       ,strain,".gcscaffold.txt"),sep="\t",header=F)
   colnames(gc[[strain]]) <- c('Contig_name',	'Length',	'A',	'C',	'G',	'T',	'N',	
                               'IUPAC','Other',	'GC')
+print(length(rownames(genstats[[strain]])))
+    #genstats[[strain]]$Contig_name <- str_split(genstats[[strain]]$Contig_name,regex("_1$"),simplify = T)[,1]
+    
   stats[[strain]] <- inner_join(genstats[[strain]],gc[[strain]],by="Contig_name")
+  print(length(rownames(stats[[strain]])))
+
 }
 ```
 
@@ -44,6 +50,7 @@ lengths <- c()
 contig_counts <- c()
 mins <- c()
 maxs <- c()
+l50s <- c()
 for (strain in strains){ 
 contig_lengths <- stats[[strain]]$Length.x
 contig_counts <- c(contig_counts,length(contig_lengths))
@@ -51,9 +58,12 @@ total_assembled_length=sum(contig_lengths)
 contig_lengths <- sort(contig_lengths,decreasing=TRUE)
 
 sum <- 0
+count <- 0
 for (length in contig_lengths){
   sum <- sum+length
+  count <- count+1
   if (sum>=total_assembled_length/2){
+    l50s <- c(l50s,count)
     n50s <- c(n50s,as.numeric(length))
     lengths <- c(lengths,total_assembled_length)
     maxs <- c(maxs,contig_lengths[1])
@@ -63,9 +73,9 @@ for (length in contig_lengths){
 }
 
 }
-global_stats <- data.frame(n50s,lengths,contig_counts,mins,maxs)
+global_stats <- data.frame(n50s,l50s,lengths,contig_counts,mins,maxs)
 rownames(global_stats) <- strains
-colnames(global_stats) <- c('N50','Total assembled length','Contig count',
+colnames(global_stats) <- c('N50','L50',  'Total assembled length','Contig count',
                             'Min contig length','Max contig length')
 ```
 #### Add in estimated genome size stats, calculated using Genomescope
@@ -75,6 +85,7 @@ temp <- name_translation$V2
 names(temp) <- name_translation$V1
 name_translation <- temp
 ```
+#
 ```{r}
 global_stats$genome_haploid_length <- seq(1,nrow(global_stats))
 global_stats$genome_unique_length <- seq(1,nrow(global_stats))
@@ -159,7 +170,10 @@ stats_joined["Normalized_fold_coverage"] <- stats_joined["Avg_fold"]/mean(stats_
 ```{r }
 
 ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
-  geom_point(size=0.5)+ylim(0,300)+facet_wrap(vars(.id))+
+  geom_point(size=0.5)+
+  ylim(0,300)+
+  #scale_y_log10()+
+  facet_wrap(vars(.id))+
              theme_bw()+
   xlab("Contig GC%")+
   ylab("Average Fold Coverage")+
