@@ -1,0 +1,35 @@
+A	C	G	T	N	IUPAC	Other	GC	GC_stdev
+0.1702	0.3300	0.3295	0.1703	0.0000	0.0000	0.0000	0.6595	0.0324
+
+Main genome scaffold total:         	6334
+Main genome contig total:           	6334
+Main genome scaffold sequence total:	308.351 MB
+Main genome contig sequence total:  	308.351 MB  	0.000% gap
+Main genome scaffold N/L50:         	455/165.43 KB
+Main genome contig N/L50:           	455/165.43 KB
+Main genome scaffold N/L90:         	2655/19.929 KB
+Main genome contig N/L90:           	2655/19.929 KB
+Max scaffold length:                	1.477 MB
+Max contig length:                  	1.477 MB
+Number of scaffolds > 50 KB:        	1299
+% main genome in scaffolds > 50 KB: 	76.15%
+
+
+Minimum 	Number        	Number        	Total         	Total         	Scaffold
+Scaffold	of            	of            	Scaffold      	Contig        	Contig  
+Length  	Scaffolds     	Contigs       	Length        	Length        	Coverage
+--------	--------------	--------------	--------------	--------------	--------
+    All 	         6,334	         6,334	   308,351,352	   308,351,352	 100.00%
+    250 	         6,334	         6,334	   308,351,352	   308,351,352	 100.00%
+    500 	         6,330	         6,330	   308,349,446	   308,349,446	 100.00%
+   1 KB 	         6,260	         6,260	   308,295,152	   308,295,152	 100.00%
+ 2.5 KB 	         5,918	         5,918	   307,675,005	   307,675,005	 100.00%
+   5 KB 	         5,118	         5,118	   304,674,192	   304,674,192	 100.00%
+  10 KB 	         3,964	         3,964	   296,196,763	   296,196,763	 100.00%
+  25 KB 	         2,244	         2,244	   268,277,646	   268,277,646	 100.00%
+  50 KB 	         1,299	         1,299	   234,794,157	   234,794,157	 100.00%
+ 100 KB 	           806	           806	   199,210,011	   199,210,011	 100.00%
+ 250 KB 	           269	           269	   116,442,546	   116,442,546	 100.00%
+ 500 KB 	            70	            70	    47,282,180	    47,282,180	 100.00%
+   1 MB 	             2	             2	     2,517,226	     2,517,226	 100.00%
+

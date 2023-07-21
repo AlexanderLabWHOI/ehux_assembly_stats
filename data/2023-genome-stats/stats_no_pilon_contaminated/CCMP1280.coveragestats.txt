@@ -1,0 +1,38 @@
+A	C	G	T	N	IUPAC	Other	GC	GC_stdev
+0.1704	0.3294	0.3298	0.1703	0.0000	0.0000	0.0000	0.6592	0.0359
+
+Main genome scaffold total:         	9074
+Main genome contig total:           	9074
+Main genome scaffold sequence total:	251.828 MB
+Main genome contig sequence total:  	251.828 MB  	0.000% gap
+Main genome scaffold N/L50:         	602/103.752 KB
+Main genome contig N/L50:           	602/103.752 KB
+Main genome scaffold N/L90:         	3600/11.039 KB
+Main genome contig N/L90:           	3600/11.039 KB
+Max scaffold length:                	4.342 MB
+Max contig length:                  	4.342 MB
+Number of scaffolds > 50 KB:        	1225
+% main genome in scaffolds > 50 KB: 	68.19%
+
+
+Minimum 	Number        	Number        	Total         	Total         	Scaffold
+Scaffold	of            	of            	Scaffold      	Contig        	Contig  
+Length  	Scaffolds     	Contigs       	Length        	Length        	Coverage
+--------	--------------	--------------	--------------	--------------	--------
+    All 	         9,074	         9,074	   251,827,621	   251,827,621	 100.00%
+     50 	         9,073	         9,073	   251,827,592	   251,827,592	 100.00%
+    100 	         9,073	         9,073	   251,827,592	   251,827,592	 100.00%
+    250 	         9,068	         9,068	   251,826,722	   251,826,722	 100.00%
+    500 	         9,063	         9,063	   251,824,353	   251,824,353	 100.00%
+   1 KB 	         8,801	         8,801	   251,626,828	   251,626,828	 100.00%
+ 2.5 KB 	         7,489	         7,489	   249,260,314	   249,260,314	 100.00%
+   5 KB 	         5,761	         5,761	   242,949,698	   242,949,698	 100.00%
+  10 KB 	         3,814	         3,814	   228,906,486	   228,906,486	 100.00%
+  25 KB 	         2,051	         2,051	   200,991,154	   200,991,154	 100.00%
+  50 KB 	         1,225	         1,225	   171,726,570	   171,726,570	 100.00%
+ 100 KB 	           642	           642	   130,040,653	   130,040,653	 100.00%
+ 250 KB 	           103	           103	    51,020,909	    51,020,909	 100.00%
+ 500 KB 	            17	            17	    23,976,921	    23,976,921	 100.00%
+   1 MB 	            11	            11	    19,444,117	    19,444,117	 100.00%
+ 2.5 MB 	             2	             2	     6,896,258	     6,896,258	 100.00%
+

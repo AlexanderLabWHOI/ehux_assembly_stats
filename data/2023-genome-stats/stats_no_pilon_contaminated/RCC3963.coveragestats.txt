@@ -1,0 +1,36 @@
+A	C	G	T	N	IUPAC	Other	GC	GC_stdev
+0.1747	0.3250	0.3259	0.1744	0.0000	0.0000	0.0000	0.6509	0.0359
+
+Main genome scaffold total:         	6207
+Main genome contig total:           	6207
+Main genome scaffold sequence total:	302.125 MB
+Main genome contig sequence total:  	302.125 MB  	0.000% gap
+Main genome scaffold N/L50:         	470/152.703 KB
+Main genome contig N/L50:           	470/152.703 KB
+Main genome scaffold N/L90:         	2668/20.438 KB
+Main genome contig N/L90:           	2668/20.438 KB
+Max scaffold length:                	3.142 MB
+Max contig length:                  	3.142 MB
+Number of scaffolds > 50 KB:        	1322
+% main genome in scaffolds > 50 KB: 	75.97%
+
+
+Minimum 	Number        	Number        	Total         	Total         	Scaffold
+Scaffold	of            	of            	Scaffold      	Contig        	Contig  
+Length  	Scaffolds     	Contigs       	Length        	Length        	Coverage
+--------	--------------	--------------	--------------	--------------	--------
+    All 	         6,207	         6,207	   302,124,558	   302,124,558	 100.00%
+    250 	         6,207	         6,207	   302,124,558	   302,124,558	 100.00%
+    500 	         6,206	         6,206	   302,124,063	   302,124,063	 100.00%
+   1 KB 	         6,133	         6,133	   302,068,818	   302,068,818	 100.00%
+ 2.5 KB 	         5,827	         5,827	   301,502,022	   301,502,022	 100.00%
+   5 KB 	         5,063	         5,063	   298,593,981	   298,593,981	 100.00%
+  10 KB 	         3,944	         3,944	   290,472,337	   290,472,337	 100.00%
+  25 KB 	         2,285	         2,285	   263,267,378	   263,267,378	 100.00%
+  50 KB 	         1,322	         1,322	   229,534,867	   229,534,867	 100.00%
+ 100 KB 	           789	           789	   190,953,121	   190,953,121	 100.00%
+ 250 KB 	           236	           236	   105,758,783	   105,758,783	 100.00%
+ 500 KB 	            56	            56	    43,434,148	    43,434,148	 100.00%
+   1 MB 	            10	            10	    14,933,730	    14,933,730	 100.00%
+ 2.5 MB 	             1	             1	     3,141,847	     3,141,847	 100.00%
+

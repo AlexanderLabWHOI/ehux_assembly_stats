@@ -15,14 +15,39 @@ library(plyr)
 library(cowplot)
 ```
 
+#### Read in stats for pre-decontamination assemblies
+```{r read_in_contam}
+genstats <- list()
+gc <- list()
+contam_stats <- list()
+strains <- as.character(read.csv('data/strains.csv',header=FALSE))
+for (strain in strains){
+  genstats[[strain]] <- read.table(paste0("data/2023-genome-stats/stats_no_pilon_contaminated/"
+                                          ,strain,".genstats.txt"),sep="\t",header=F)
+  colnames(genstats[[strain]]) <- c(	'Contig_name','Avg_fold',	'Length',	'Ref_GC',	
+                                     'Covered_percent',	'Covered_bases','Plus_reads',
+                                     'Minus_reads',	'Read_GC',	'Median_fold', 'Std_Dev')
+
+  gc[[strain]] <- read.table(paste0("data/2023-genome-stats/stats_no_pilon_contaminated/"
+                                      ,strain,".gcscaffold.txt"),sep="\t",header=F)
+  colnames(gc[[strain]]) <- c('Contig_name',	'Length',	'A',	'C',	'G',	'T',	'N',	
+                              'IUPAC','Other',	'GC')
+
+    #genstats[[strain]]$Contig_name <- str_split(genstats[[strain]]$Contig_name,regex("_1$"),simplify = T)[,1]
+    
+  contam_stats[[strain]] <- inner_join(genstats[[strain]],gc[[strain]],by="Contig_name")
+
+
+}
+```
+
 
 #### Read in assembly stats data for non-dedupped assemblies
 
 ```{r read_in}
 genstats <- list()
 gc <- list()
-stats <- list()
-strains <- as.character(read.csv('data/strains.csv',header=FALSE))
+dup_stats <- list()
 for (strain in strains){
   genstats[[strain]] <- read.table(paste0("data/2023-genome-stats/stats_after_pilon_round_2_decontam/"
                                           ,strain,".genstats.txt"),sep="\t",header=F)
@@ -37,26 +62,26 @@ for (strain in strains){
 
     #genstats[[strain]]$Contig_name <- str_split(genstats[[strain]]$Contig_name,regex("_1$"),simplify = T)[,1]
     
-  stats[[strain]] <- inner_join(genstats[[strain]],gc[[strain]],by="Contig_name")
+  dup_stats[[strain]] <- inner_join(genstats[[strain]],gc[[strain]],by="Contig_name")
 
 
 }
 ```
-
+#### Read in stats for dedup assemblies
 
 ```{r read_in_rmdup}
 genstats <- list()
 gc <- list()
 rmdup_stats <- list()
 for (strain in strains){
-  genstats[[strain]] <- read.table(paste0("data/stats_after_pilon_round_2_decontam_rmdup/"
+  genstats[[strain]] <- read.table(paste0("data/2023-genome-stats/stats_after_pilon_round_2_decontam_rmdup/"
                                           ,strain,".genstats.txt"),sep="\t",header=F)
   
   colnames(genstats[[strain]]) <- c(	'Contig_name','Avg_fold',	'Length',	'Ref_GC',	
                                      'Covered_percent',	'Covered_bases','Plus_reads',
                                      'Minus_reads',	'Read_GC',	'Median_fold', 'Std_Dev')
 
-    gc[[strain]] <- read.table(paste0("data/stats_after_pilon_round_2_decontam_rmdup/"
+    gc[[strain]] <- read.table(paste0("data/2023-genome-stats/stats_after_pilon_round_2_decontam_rmdup/"
                                       ,strain,".gcscaffold.txt"),sep="\t",header=F)
   colnames(gc[[strain]]) <- c('Contig_name',	'Length',	'A',	'C',	'G',	'T',	'N',	
                               'IUPAC','Other',	'GC')
@@ -71,14 +96,15 @@ for (strain in strains){
 
 #### Calculate globals assembly stats including N50 and total assembled length
 ```{r}
-n50s <- c()
+calculate_stats <- function(data,prefix){
+  n50s <- c()
 lengths <- c()
 contig_counts <- c()
 mins <- c()
 maxs <- c()
 l50s <- c()
 for (strain in strains){ 
-contig_lengths <- stats[[strain]]$Length.x
+contig_lengths <- data[[strain]]$Length.x
 contig_counts <- c(contig_counts,length(contig_lengths))
 total_assembled_length=sum(contig_lengths)
 contig_lengths <- sort(contig_lengths,decreasing=TRUE)
@@ -99,45 +125,23 @@ for (length in contig_lengths){
 }
 
 }
-global_stats <- data.frame(n50s,l50s,lengths,contig_counts,mins,maxs)
-rownames(global_stats) <- strains
-colnames(global_stats) <- c('N50','L50',  'Total assembled length','Contig count',
-                            'Min contig length','Max contig length')
+stats <- data.frame(n50s,l50s,lengths,contig_counts,mins,maxs)
+rownames(stats) <- strains
+colnames(stats) <- c(paste0(prefix,'_N50'),paste0(prefix,'_L50'),  paste0(prefix,'_Total assembled length'),paste0(prefix,'_Contig count'),
+                            paste0(prefix,'_Min contig length'),paste0(prefix,'_Max contig length'))
+return(stats)
+}
+
+global_stats <- calculate_stats(dup_stats,"dup")
 ```
 
 #### Add in rmdup stats
 ```{r}
-n50s <- c()
-lengths <- c()
-contig_counts <- c()
-l50s <- c()
-
-
-for (strain in strains){ 
-contig_lengths <- rmdup_stats[[strain]]$Length.x
-contig_counts <- c(contig_counts,length(contig_lengths))
-total_assembled_length=sum(contig_lengths)
-contig_lengths <- sort(contig_lengths,decreasing=TRUE)
-
-sum <- 0
-count <- 0
-for (length in contig_lengths){
-  sum <- sum+length
-  count <- count+1
-  if (sum>=total_assembled_length/2){
-    l50s <- c(l50s,count)
-    n50s <- c(n50s,as.numeric(length))
-    lengths <- c(lengths,total_assembled_length)
-    break
-  }
-}
-
-}
-temp <- data.frame(n50s,l50s,lengths,contig_counts)
-rownames(temp) <- strains
-colnames(temp) <- c('rmdup_N50','rmdup_L50',  'rmdup Total assembled length','rmdup Contig count')
-global_stats <- cbind(global_stats,temp)
-global_stats
+global_stats <- cbind(global_stats,calculate_stats(rmdup_stats,"rmdup"))
+```
+### Add in contam stats
+```{r}
+global_stats <- cbind(global_stats,calculate_stats(contam_stats,"contam"))
 ```
 
 
@@ -148,7 +152,7 @@ temp <- name_translation$V2
 names(temp) <- name_translation$V1
 name_translation <- temp
 ```
-#
+
 ```{r}
 global_stats$genome_haploid_length <- seq(1,nrow(global_stats))
 global_stats$genome_unique_length <- seq(1,nrow(global_stats))
@@ -172,11 +176,12 @@ print(global_stats)
 #### Genomescope predicted haploid genome length vs N50
 ```{r}
 global_stats$Strain <- rownames(global_stats)
-colors <- c("Initial" = "black", "Rmdup" = "blue")
+colors <- c("Dup" = "black", "Rmdup" = "blue","Contam"="red")
 
-ggplot(global_stats,aes(x=N50,y=genome_haploid_length,label=Strain,color="Initial"))+
+ggplot(global_stats,aes(x=dup_N50,y=genome_haploid_length,label=Strain,color="Dup"))+
   geom_point()+
-  geom_point(aes(x=rmdup_N50,y=genome_haploid_length,label=Strain, color = "Rmdup"))+
+  geom_point(aes(x=rmdup_N50,y=genome_haploid_length, color = "Rmdup"))+
+  geom_point(aes(x=contam_N50,y=genome_haploid_length, color = "Contam"))+
   theme_bw()+
   scale_x_log10()+
   geom_smooth(method=lm,colour="black")+
@@ -197,9 +202,10 @@ ggsave("plots/haploid_genome_length_vs_N50.png")
 
 
 global_stats$Strain <- rownames(global_stats)
-ggplot(global_stats,aes(x=N50,y=genome_unique_length,label=Strain,color="Initial"))+
+ggplot(global_stats,aes(x=dup_N50,y=genome_unique_length,label=Strain,color="Dup"))+
   geom_point()+
-  geom_point(aes(x=rmdup_N50,y=genome_unique_length,label=Strain, color = "Rmdup"))+
+  geom_point(aes(x=rmdup_N50,y=genome_unique_length, color = "Rmdup"))+
+  geom_point(aes(x=contam_N50,y=genome_unique_length, color = "Contam"))+
   theme_bw()+
   scale_x_log10()+
   geom_smooth(method=lm,colour="black")+
@@ -221,11 +227,21 @@ ggsave("plots/unique_genome_length_vs_N50.png")
 
 #### Contig length distribution for each strain
 ```{r}
-stats_joined <- ldply(stats,rbind)
-initial <- ggplot(stats_joined,aes(x=Length.x))+geom_histogram()+scale_x_log10()+
+stats_joined <- ldply(contam_stats,rbind)
+contam <- ggplot(stats_joined,aes(x=Length.x))+geom_histogram()+scale_x_log10()+
            theme_bw()+
   xlab("Contig size")+
   ylab("Count")+facet_wrap(vars(.id))+
+  ylim(0,2500)+
+  theme(plot.caption = element_text(hjust = 0,size=12),
+        axis.text.x = element_text(angle = 90))
+
+stats_joined <- ldply(dup_stats,rbind)
+dup <- ggplot(stats_joined,aes(x=Length.x))+geom_histogram()+scale_x_log10()+
+           theme_bw()+
+  xlab("Contig size")+
+  ylab("Count")+facet_wrap(vars(.id))+
+  ylim(0,2500)+
   theme(plot.caption = element_text(hjust = 0,size=12), axis.text.x = element_text(angle = 90))
 
 stats_joined <- ldply(rmdup_stats,rbind)
@@ -233,42 +249,53 @@ rmdup <- ggplot(stats_joined,aes(x=Length.x))+geom_histogram()+scale_x_log10()+
            theme_bw()+
   xlab("Contig size")+
   ylab("Count")+facet_wrap(vars(.id))+
+  ylim(0,2500)+
   theme(plot.caption = element_text(hjust = 0,size=12),
         axis.text.x = element_text(angle = 90))
 
-combined <- plot_grid(initial,rmdup, labels = c('Initial', 'Rmdup'), label_size = 12,hjust=-5,vjust=30)
+combined <- plot_grid(contam,dup,rmdup, labels = c('Contam','Dup', 'Rmdup'), label_size = 12,ncol=3,vjust=75)
 title <- ggdraw() + draw_label("Figure 3. Contig length distribution for 13 Emiliania huxleyi genomes",size=10)+theme(panel.background = element_rect(fill = 'white',color="white"))
 plot_grid(combined,title, ncol=1, rel_heights=c(1, 0.1))
-ggsave("plots/contig_length_distributions.png")
+ggsave("plots/contig_length_distributions.png",width=20,height=10)
 
 ```
 
 
 
-```{r,include=FALSE}
-  
-stats_joined["Normalized_fold_coverage"] <- stats_joined["Avg_fold"]/mean(stats_joined$Avg_fold)
-
-```
 
 #### Scatterplots of fold coverage vs GC percentage (each point represents a contig)
 ```{r }
-stats_joined <- ldply(stats,rbind)
-initial <- ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
+stats_joined <- ldply(contam_stats,rbind)
+contam <- ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
   geom_point(size=0.5)+
   ylim(0,300)+
+  xlim(0.25,0.9)+
   #scale_y_log10()+
   facet_wrap(vars(.id))+
              theme_bw()+
   xlab("Contig GC%")+
   ylab("Average Fold Coverage")+
   theme(plot.caption = element_text(hjust = 0,size=12), axis.text.x = element_text(angle = 90))
+nrow(stats_joined)
 
+stats_joined <- ldply(dup_stats,rbind)
+dup <- ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
+  geom_point(size=0.5)+
+  ylim(0,300)+
+  xlim(0.25,0.9)+
+  #scale_y_log10()+
+  facet_wrap(vars(.id))+
+             theme_bw()+
+  xlab("Contig GC%")+
+  ylab("Average Fold Coverage")+
+  theme(plot.caption = element_text(hjust = 0,size=12), axis.text.x = element_text(angle = 90))
+nrow(stats_joined)
 
 stats_joined <- ldply(rmdup_stats,rbind)
 rmdup <- ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
   geom_point(size=0.5)+
   ylim(0,300)+
+  xlim(0.25,0.9)+
   #scale_y_log10()+
   facet_wrap(vars(.id))+
              theme_bw()+
@@ -276,28 +303,30 @@ rmdup <- ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
   ylab("Average Fold Coverage")+
   theme(plot.caption = element_text(hjust = 0,size=12),
         axis.text.x = element_text(angle = 90))
+nrow(stats_joined)
 
-plot_grid(initial,rmdup, labels = c('Initial', 'Rmdup'), label_size = 12,hjust=-3,vjust=35)
-combined <- plot_grid(initial,rmdup, labels = c('Initial', 'Rmdup'), label_size = 12,hjust=-5,vjust=30)
+combined <- plot_grid(contam,dup,rmdup, labels = c('Contam','Dup', 'Rmdup'), label_size = 12,ncol=3,vjust=75)
 title <- ggdraw() + draw_label("Figure 4. Contig fold coverage vs GC percentage for 13 Emiliania huxleyi genomes",size=10)+theme(panel.background = element_rect(fill = 'white',color="white"))
 plot_grid(combined,title, ncol=1, rel_heights=c(1, 0.1))
 
-ggsave("plots/coverage_vs_GC.png")
+ggsave("plots/coverage_vs_GC.png",height=10,width=20)
 ```
 
 
 #### Genomescope predicted unique genome length vs assembled length
 ```{r}
-global_stats$rmdup_total_assembled_length <- global_stats[,"rmdup Total assembled length"]
-global_stats$total_assembled_length <- global_stats[,"Total assembled length"]
+global_stats$rmdup_total_assembled_length <- global_stats[,"rmdup_Total assembled length"]
+global_stats$dup_total_assembled_length <- global_stats[,"dup_Total assembled length"]
+global_stats$contam_total_assembled_length <- global_stats[,"contam_Total assembled length"]
 
 ggplot(global_stats,aes(x=rmdup_total_assembled_length,y=genome_unique_length,label=Strain,color="Rmdup"))+
   geom_point()+
-  geom_point(aes(x=total_assembled_length,y=genome_unique_length,label=Strain, color = "Initial"))+
+  geom_point(aes(x=dup_total_assembled_length,y=genome_unique_length, color = "Dup"))+
+  geom_point(aes(x=contam_total_assembled_length,y=genome_unique_length, color = "Contam"))+
   theme_bw()+
   geom_abline(color="black",slope=1,linetype = "dashed")+
     geom_abline(color="black",slope=0.5,linetype = "dashed")+
-  xlim(0,3e+8)+
+  xlim(0,4e+8)+
   ylim(0,1.5e+8)+
   ylab("Unique genome length")+
   xlab("Total assembled length")+
@@ -306,7 +335,7 @@ ggplot(global_stats,aes(x=rmdup_total_assembled_length,y=genome_unique_length,la
                         genomes.",75))+
     geom_text_repel(size=3,nudge_x=10,min.segment.length=0)+
     annotate("text",x=1e8,y=1e8,label="y=x",color="red",size=5)+
-      annotate("text",x=2.5e8,y=1e8,label="y=0.5x",color="red",size=5)+
+      annotate("text",x=2.3e8,y=1e8,label="y=0.5x",color="red",size=5)+
   theme(plot.caption = element_text(hjust = 0,size=12))+
   labs(color = "Legend")+
   scale_color_manual(values = colors)
@@ -322,11 +351,12 @@ ggsave("plots/unique_genome_length_vs_total_assembled_length.png")
 
 ggplot(global_stats,aes(x=rmdup_total_assembled_length,y=genome_haploid_length,label=Strain,color="Rmdup"))+
   geom_point()+
-  geom_point(aes(x=total_assembled_length,y=genome_haploid_length,label=Strain, color = "Initial"))+
+  geom_point(aes(x=dup_total_assembled_length,y=genome_haploid_length, color = "Dup"))+
+  geom_point(aes(x=contam_total_assembled_length,y=genome_haploid_length, color = "Contam"))+
   theme_bw()+
   geom_abline(color="black",slope=1,linetype = "dashed")+
     geom_abline(color="black",slope=0.5,linetype = "dashed")+
-  xlim(0,3e+8)+
+  xlim(0,4e+8)+
   ylim(0,1.5e+8)+
   ylab("Haploid genome length")+
   xlab("Total assembled length")+
