@@ -3,7 +3,7 @@ title: "all_strain_genome_stats"
 output: pdf_document
 date: "2023-07-12"
 ---
-## Assembly stats for 13 Emiliania huxleyi genomes
+## Assembly stats for 15 Emiliania huxleyi genomes
 
 ```{r setup, include=FALSE}
 library(ggplot2)
@@ -98,6 +98,12 @@ for (strain in strains){
 }
 ```
 
+#### Read in stats for contigs scaffolded to RCC874 using RagTag
+
+```{r}
+scaffold_stats <- read.csv("data/RCC874_scaffolding_stats/merged_stats_clean_numeric.txt")
+```
+
 #### Calculate globals assembly stats including N50 and total assembled length
 ```{r}
 calculate_stats <- function(data,prefix){
@@ -187,64 +193,85 @@ print(global_stats)
 ```
 We have 15 strain genomes in total, 14 of which have a predicted unique and haploid 
 genome length using genomescope.  This algorithm did not converge for strain RCC1215.
+```{r}
+global_stats$strain <- rownames(global_stats)
+global_stats <- join(global_stats,scaffold_stats)
+```
+
 
 #### Genomescope predicted haploid genome length vs N50
 ```{r}
-global_stats$Strain <- rownames(global_stats)
-colors <- c("Dup" = "black", "Rmdup" = "blue","Contam"="red")
 
-ggplot(global_stats,aes(x=dup_N50,y=genome_haploid_length,label=Strain,color="Dup"))+
+colors <- c("Dup" = "black", "Rmdup" = "blue","Contam"="red","Scaffold"="green")
+
+ggplot(global_stats,aes(x=scaffold_N50,y=genome_haploid_length,label=strain,color="Scaffold"))+
   geom_point()+
   geom_point(aes(x=rmdup_N50,y=genome_haploid_length, color = "Rmdup"))+
   geom_point(aes(x=contam_N50,y=genome_haploid_length, color = "Contam"))+
+  geom_point(aes(x=dup_N50,y=genome_haploid_length, color = "Dup"))+
   theme_bw()+
   scale_x_log10()+
-  geom_smooth(method=lm,colour="black")+
+  #geom_smooth(method=lm,colour="black")+
   ylim(5e7,1.5e8)+
   ylab("Haploid genome length")+
   xlab("Contig N50")+
   labs(caption=str_wrap("Figure 1.  Relationship between predicted haploid genome 
                         length and contig N50 for 14 Emiliania huxleyi  
                         genomes.",75))+
-    geom_text_repel(size=3)+
+    geom_text_repel(size=3,color="black")+
+  geom_text_repel(
+                aes(x = rmdup_N50,
+                    y = genome_haploid_length),
+                color= "black",size=3)+
   theme(plot.caption = element_text(hjust = 0,size=12))+
   labs(color = "Legend")+   scale_color_manual(values = colors)
 
 
 ggsave("plots/haploid_genome_length_vs_N50.png")
 ```
+
+
 #### Genomescope predicted unique genome length vs N50
 ```{r}
 
 
-global_stats$Strain <- rownames(global_stats)
-ggplot(global_stats,aes(x=dup_N50,y=genome_unique_length,label=Strain,color="Dup"))+
+#global_stats$Strain <- rownames(global_stats)
+
+ggplot(global_stats,aes(x=scaffold_N50,y=genome_unique_length,label=strain,color="Scaffold"))+
   geom_point()+
   geom_point(aes(x=rmdup_N50,y=genome_unique_length, color = "Rmdup"))+
   geom_point(aes(x=contam_N50,y=genome_unique_length, color = "Contam"))+
+  geom_point(aes(x=dup_N50,y=genome_unique_length, color = "Dup"))+
   theme_bw()+
   scale_x_log10()+
-  geom_smooth(method=lm,colour="black")+
+  #geom_smooth(method=lm,colour="black")+
+  ylim(5e7,1e8)+
   ylab("Unique genome length")+
   xlab("Contig N50")+
-  ylim(5e7,1.5e8)+
-  labs(caption=str_wrap("Figure 2.  Relationship between predicted unique genome
-                        length and contig N50 for 14 Emiliania huxleyi 
+  labs(caption=str_wrap("Figure 2.  Relationship between predicted unique genome 
+                        length and contig N50 for 14 Emiliania huxleyi  
                         genomes.",75))+
-    geom_text_repel(size=3)+
+    geom_text_repel(size=3,color="black")+
+  geom_text_repel(
+                aes(x = rmdup_N50,
+                    y = genome_unique_length),
+                color= "black",size=3)+
   theme(plot.caption = element_text(hjust = 0,size=12))+
-  labs(color = "Legend")+
-  scale_color_manual(values = colors)
+  labs(color = "Legend")+   scale_color_manual(values = colors)
+
+
 ggsave("plots/unique_genome_length_vs_N50.png")
 
 
 ```
 
 
-
 #### Contig length distribution for each strain
 ```{r}
+
+
 stats_joined <- ldply(contam_stats,rbind)
+stats_joined$.id <- factor(stats_joined$.id,levels=c("CCMP371",  "CCMP375",  "CCMP377",  "CCMP1280", "RCC874",   "RCC914",   "RCC1222",  "RCC1239",  "RCC1256",  "RCC3492",  "RCC3963",  "RCC6071",  "RCC6856", "RCC1212","RCC1215"))
 contam <- ggplot(stats_joined,aes(x=Length.x))+geom_histogram()+scale_x_log10()+
            theme_bw()+
   xlab("Contig size")+
@@ -253,7 +280,9 @@ contam <- ggplot(stats_joined,aes(x=Length.x))+geom_histogram()+scale_x_log10()+
   theme(plot.caption = element_text(hjust = 0,size=12),
         axis.text.x = element_text(angle = 90))
 
+
 stats_joined <- ldply(dup_stats,rbind)
+stats_joined$.id <- factor(stats_joined$.id,levels=c("CCMP371",  "CCMP375",  "CCMP377",  "CCMP1280", "RCC874",   "RCC914",   "RCC1222",  "RCC1239",  "RCC1256",  "RCC3492",  "RCC3963",  "RCC6071",  "RCC6856", "RCC1212","RCC1215"))
 dup <- ggplot(stats_joined,aes(x=Length.x))+geom_histogram()+scale_x_log10()+
            theme_bw()+
   xlab("Contig size")+
@@ -262,6 +291,7 @@ dup <- ggplot(stats_joined,aes(x=Length.x))+geom_histogram()+scale_x_log10()+
   theme(plot.caption = element_text(hjust = 0,size=12), axis.text.x = element_text(angle = 90))
 
 stats_joined <- ldply(rmdup_stats,rbind)
+stats_joined$.id <- factor(stats_joined$.id,levels=c("CCMP371",  "CCMP375",  "CCMP377",  "CCMP1280", "RCC874",   "RCC914",   "RCC1222",  "RCC1239",  "RCC1256",  "RCC3492",  "RCC3963",  "RCC6071",  "RCC6856", "RCC1212","RCC1215"))
 rmdup <- ggplot(stats_joined,aes(x=Length.x))+geom_histogram()+scale_x_log10()+
            theme_bw()+
   xlab("Contig size")+
@@ -283,6 +313,7 @@ ggsave("plots/contig_length_distributions.png",width=20,height=10)
 #### Scatterplots of fold coverage vs GC percentage (each point represents a contig)
 ```{r }
 stats_joined <- ldply(contam_stats,rbind)
+stats_joined$.id <- factor(stats_joined$.id,levels=c("CCMP371",  "CCMP375",  "CCMP377",  "CCMP1280", "RCC874",   "RCC914",   "RCC1222",  "RCC1239",  "RCC1256",  "RCC3492",  "RCC3963",  "RCC6071",  "RCC6856", "RCC1212","RCC1215"))
 contam <- ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
   geom_point(size=0.5)+
   ylim(0,300)+
@@ -296,6 +327,7 @@ contam <- ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
 nrow(stats_joined)
 
 stats_joined <- ldply(dup_stats,rbind)
+stats_joined$.id <- factor(stats_joined$.id,levels=c("CCMP371",  "CCMP375",  "CCMP377",  "CCMP1280", "RCC874",   "RCC914",   "RCC1222",  "RCC1239",  "RCC1256",  "RCC3492",  "RCC3963",  "RCC6071",  "RCC6856", "RCC1212","RCC1215"))
 dup <- ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
   geom_point(size=0.5)+
   ylim(0,300)+
@@ -309,6 +341,7 @@ dup <- ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
 nrow(stats_joined)
 
 stats_joined <- ldply(rmdup_stats,rbind)
+stats_joined$.id <- factor(stats_joined$.id,levels=c("CCMP371",  "CCMP375",  "CCMP377",  "CCMP1280", "RCC874",   "RCC914",   "RCC1222",  "RCC1239",  "RCC1256",  "RCC3492",  "RCC3963",  "RCC6071",  "RCC6856", "RCC1212","RCC1215"))
 rmdup <- ggplot(data = stats_joined, aes(x = GC,y=Avg_fold)) +
   geom_point(size=0.5)+
   ylim(0,300)+
@@ -336,10 +369,11 @@ global_stats$rmdup_total_assembled_length <- global_stats[,"rmdup_Total assemble
 global_stats$dup_total_assembled_length <- global_stats[,"dup_Total assembled length"]
 global_stats$contam_total_assembled_length <- global_stats[,"contam_Total assembled length"]
 
-ggplot(global_stats,aes(x=rmdup_total_assembled_length,y=genome_unique_length,label=Strain,color="Rmdup"))+
+ggplot(global_stats,aes(x=rmdup_total_assembled_length,y=genome_unique_length,label=strain,color="Rmdup"))+
   geom_point()+
   geom_point(aes(x=dup_total_assembled_length,y=genome_unique_length, color = "Dup"))+
   geom_point(aes(x=contam_total_assembled_length,y=genome_unique_length, color = "Contam"))+
+  geom_point(aes(x=assembled_scaffold_length,y=genome_unique_length, color = "Scaffold"))+
   theme_bw()+
   geom_abline(color="black",slope=1,linetype = "dashed")+
     geom_abline(color="black",slope=0.5,linetype = "dashed")+
@@ -350,7 +384,7 @@ ggplot(global_stats,aes(x=rmdup_total_assembled_length,y=genome_unique_length,la
   labs(caption=str_wrap("Figure 5.  Relationship between predicted unique genome
                         length and total assembled length for 14 Emiliania huxleyi 
                         genomes.",75))+
-    geom_text_repel(size=3,nudge_x=10,min.segment.length=0)+
+    geom_text_repel(size=3,nudge_x=10,min.segment.length=0,color="black")+
     annotate("text",x=1e8,y=1e8,label="y=x",color="red",size=5)+
       annotate("text",x=2.3e8,y=1e8,label="y=0.5x",color="red",size=5)+
   theme(plot.caption = element_text(hjust = 0,size=12))+
@@ -366,10 +400,11 @@ ggsave("plots/unique_genome_length_vs_total_assembled_length.png")
 
 
 
-ggplot(global_stats,aes(x=rmdup_total_assembled_length,y=genome_haploid_length,label=Strain,color="Rmdup"))+
+ggplot(global_stats,aes(x=rmdup_total_assembled_length,y=genome_haploid_length,label=strain,color="Rmdup"))+
   geom_point()+
   geom_point(aes(x=dup_total_assembled_length,y=genome_haploid_length, color = "Dup"))+
   geom_point(aes(x=contam_total_assembled_length,y=genome_haploid_length, color = "Contam"))+
+    geom_point(aes(x=assembled_scaffold_length,y=genome_haploid_length, color = "Scaffold"))+
   theme_bw()+
   geom_abline(color="black",slope=1,linetype = "dashed")+
     geom_abline(color="black",slope=0.5,linetype = "dashed")+
@@ -380,7 +415,7 @@ ggplot(global_stats,aes(x=rmdup_total_assembled_length,y=genome_haploid_length,l
   labs(caption=str_wrap("Figure 6.  Relationship between predicted haploid genome
                         length and total assembled length for 14 Emiliania huxleyi 
                         genomes.",75))+
-    geom_text_repel(size=3,nudge_x=10,min.segment.length=0)+
+    geom_text_repel(size=3,nudge_x=10,min.segment.length=0,color="black")+
     annotate("text",x=1e8,y=1e8,label="y=x",color="red",size=5)+
       annotate("text",x=1.3e8,y=5e7,label="y=0.5x",color="red",size=5)+
   theme(plot.caption = element_text(hjust = 0,size=12))+
@@ -390,19 +425,8 @@ ggplot(global_stats,aes(x=rmdup_total_assembled_length,y=genome_haploid_length,l
 ggsave("plots/haploid_genome_length_vs_total_assembled_length.png")
 ```
 
-```{r include=FALSE}
 
-temp <- stats_joined
-#temp <- filter(temp,Avg_fold<50)
-temp <- mutate(temp, bin=cut_width(GC, width=0.01, boundary=0) )
 
-ggplot(temp, aes(x=bin, y=Avg_fold)) +geom_boxplot()+
-  labs(caption=str_wrap(paste0("Fold coverage vs GC percentage for strain ",strain),75))+
-  facet_wrap(vars(.id))+ylim(0,200)+
-  theme(plot.caption = element_text(hjust = 0,size=12),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
-
-```
 
 
 
